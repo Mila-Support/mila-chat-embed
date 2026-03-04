@@ -805,7 +805,7 @@ function appendWidget(guideContext) {
         `).join('')}
       </div>
       <button class="widget-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-widget','_blank')">Book your free intro call</button>
-      <button class="widget-cta-secondary" onclick="continueChat()">Keep chatting with Mila AI</button>
+      <button class="widget-cta-secondary" onclick="continueChat(this)">Keep chatting with Mila AI</button>
     </div>
   `;
   container.appendChild(widget);
@@ -850,9 +850,16 @@ function closeModalOutside(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
-function continueChat() {
-  document.getElementById('userInput').focus();
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+function continueChat(btn) {
+  const widget = btn.closest('.message.ai');
+  if (widget) {
+    widget.style.transition = 'opacity 0.3s ease';
+    widget.style.opacity = '0';
+    setTimeout(() => widget.remove(), 300);
+  }
+  setTimeout(() => {
+    document.getElementById('userInput').focus();
+  }, 300);
 }
 </script>
 </body>
