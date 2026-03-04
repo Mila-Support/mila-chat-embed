@@ -285,6 +285,15 @@
     opacity: 0.6;
   }
 
+  .widget-support-label {
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
   .widget-support-list {
     display: flex;
     flex-direction: column;
@@ -363,7 +372,7 @@
 
   .input-wrapper {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 10px;
     background: #fff;
     border: 1px solid rgba(255,137,77,0.3);
@@ -577,7 +586,7 @@
 <!-- HERO -->
 <div class="hero" id="hero">
   <div class="logo">Mila</div>
-  <h1>You don't have to<br><em>Google this.</em></h1>
+  <h1>What's on<br><em>your mind?</em></h1>
   <p>Mila AI is trained by real doulas. Ask your question and get a real answer — any hour, any stage of pregnancy.</p>
   <div class="disclaimer">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -692,13 +701,8 @@ async function sendMessage() {
 
     // Parse out guide context
     const guideContextMatch = fullText.match(/GUIDE_CONTEXT:\s*(.+)/);
-    const supportItemsMatch = fullText.match(/SUPPORT_ITEMS:\s*([\s\S]+)/);
-
     const mainResponse = fullText.split('GUIDE_CONTEXT:')[0].trim();
     const guideContext = guideContextMatch ? guideContextMatch[1].trim() : null;
-    const supportItems = supportItemsMatch
-      ? supportItemsMatch[1].trim().split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0,3)
-      : null;
 
     typingEl.remove();
     appendMessage('ai', mainResponse);
@@ -708,7 +712,7 @@ async function sendMessage() {
     // Show widget after first AI response
     if (!widgetShown) {
       widgetShown = true;
-      setTimeout(() => appendWidget(guideContext, supportItems), 400);
+      setTimeout(() => appendWidget(guideContext), 400);
     }
 
   } catch (err) {
@@ -758,49 +762,36 @@ function appendTyping() {
   return div;
 }
 
-function appendWidget(guideContext, supportItems) {
+function appendWidget(guideContext) {
   const container = document.getElementById('chatContainer');
 
-  const defaultItems = [
-    'Answer questions and ease your worries',
-    'Help you feel prepared for what\'s next',
-    'Be there when you need support most'
+  const staticSupportItems = [
+    'Ongoing support through pregnancy and postpartum',
+    'Help you understand your options and feel prepared',
+    'A steady presence for questions, worries, and big decisions',
   ];
-  const items = (supportItems && supportItems.length) ? supportItems : defaultItems;
 
-  // Convert guideContext (3rd person summary) to a first-person message
-  const firstPersonMessage = guideContext
-    .replace(/^(she|he|they) (is|are|has|have)/i, "I'm")
-    .replace(/^(the user|the person|someone) (is|are|has|have)/i, "I'm")
-    .replace(/^(she|he|they)/i, "I")
-    || guideContext;
+  const message = guideContext || 'I have a question and would love some support.';
 
   const widget = document.createElement('div');
   widget.className = 'message ai';
   widget.innerHTML = `
-    <div class="ai-label"><span class="sparkle">✦</span> Your pregnancy guide</div>
+    <div class="ai-label"><span class="sparkle">✦</span> Loop in your pregnancy guide</div>
     <div class="guide-widget">
-      <div class="widget-header">
-        <div class="widget-icon">🌿</div>
-        <div>
-          <div class="widget-title">Loop in your pregnancy guide</div>
-          <div class="widget-subtitle">A real doula, just for you</div>
-        </div>
-      </div>
-
       <div class="widget-message-row">
-        <div class="guide-avatar-placeholder">🤰</div>
+        <img src="/doula.png" class="guide-avatar" alt="Your pregnancy guide" onerror="this.outerHTML='<div class=\'guide-avatar-placeholder\'>🌿</div>'">
         <div class="widget-summary">
           <div class="widget-summary-label">
             <svg class="send-preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             Message we'll send your guide
           </div>
-          "${firstPersonMessage}"
+          "${message}"
         </div>
       </div>
 
+      <div class="widget-support-label">Here's how your pregnancy guide can help:</div>
       <div class="widget-support-list">
-        ${items.map(item => `
+        ${staticSupportItems.map(item => `
           <div class="support-item">
             <div class="support-dot"></div>
             <span>${item}</span>

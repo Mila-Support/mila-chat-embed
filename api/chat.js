@@ -111,10 +111,9 @@ Examples:
 # Output Format
 
 After your response, on a new line, output exactly this format:
-GUIDE_CONTEXT: [1 sentence summary of what the person is dealing with, written as if briefing their doula]
-SUPPORT_ITEMS: [3 short bullet points, each under 10 words, of how a doula could help with this specific situation]
+GUIDE_CONTEXT: [1 sentence written in first person as if the user is sending a message to their doula, e.g. "I'm 32 weeks and struggling with back pain — can we talk through some relief options?"]
 
-Do not add any other text after SUPPORT_ITEMS.`;
+Do not add any other text after GUIDE_CONTEXT.`;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
