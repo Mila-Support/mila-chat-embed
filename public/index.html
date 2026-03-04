@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mila – Ask Your Pregnancy Question</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --mila-orange-light: #FBCAAD;
+    --mila-orange: #FF894D;
+    --mila-orange-dark: #FF7A3A;
+    --mila-background: #FFFADC;
+    --mila-card-background: #FFFFFF;
+    --mila-text-primary: #1A1A1A;
+    --mila-text-secondary: rgba(0,0,0,0.8);
+    --mila-text-disabled: #999999;
+    --cream: #FFFADC;
+    --cream-dark: #FFF3C4;
+    --sage: #FF894D;
+    --sage-light: #FBCAAD;
+    --warm-brown: #FF7A3A;
+    --text: #1A1A1A;
+    --text-light: #666666;
+    --bubble-ai: #FFFFFF;
+    --bubble-user: #1A1A1A;
+    --widget-bg: #FFF6E8;
+    --accent: #FF894D;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ── LANDING HERO ── */
+  .hero {
+    width: 100%;
+    max-width: 680px;
+    padding: 64px 24px 32px;
+    text-align: center;
+    transition: all 0.5s ease;
+  }
+
+  .hero.shrunk {
+    padding: 24px 24px 16px;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-light);
+    margin-bottom: 32px;
+  }
+
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 6vw, 54px);
+    font-weight: 300;
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 14px;
+    transition: all 0.5s ease;
+  }
+
+  .hero.shrunk h1 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .hero p {
+    font-size: 15px;
+    color: var(--text-light);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 420px;
+    margin: 0 auto 36px;
+    transition: all 0.4s ease;
+  }
+
+  .hero.shrunk p {
+    display: none;
+  }
+
+  .disclaimer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: var(--text-light);
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
+
+  .disclaimer svg { flex-shrink: 0; }
+
+  /* ── CHAT AREA ── */
+  .chat-container {
+    width: 100%;
+    max-width: 680px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+  }
+
+  .message {
+    display: flex;
+    flex-direction: column;
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { align-items: flex-end; }
+  .message.ai { align-items: flex-start; }
+
+  .bubble {
+    max-width: 82%;
+    padding: 14px 18px;
+    border-radius: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .message.user .bubble {
+    background: var(--bubble-user);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+
+  .message.ai .bubble {
+    background: var(--bubble-ai);
+    color: var(--text);
+    border-bottom-left-radius: 4px;
+  }
+
+  .ai-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+
+  .sparkle { color: #FF894D; font-size: 14px; }
+
+  /* ── TYPING INDICATOR ── */
+  .typing-bubble {
+    background: var(--bubble-ai);
+    padding: 14px 18px;
+    border-radius: 18px;
+    border-bottom-left-radius: 4px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    width: fit-content;
+  }
+
+  .typing-bubble span {
+    width: 7px; height: 7px;
+    background: var(--text-light);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+    opacity: 0.5;
+  }
+  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* ── PREGNANCY GUIDE WIDGET ── */
+  .guide-widget {
+    background: #FFF6E8;
+    border-radius: 18px;
+    padding: 20px;
+    max-width: 82%;
+    animation: fadeUp 0.5s ease 0.2s forwards;
+    opacity: 0;
+    border: 1px solid rgba(255,137,77,0.2);
+  }
+
+  .widget-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .widget-icon {
+    width: 32px; height: 32px;
+    background: var(--sage);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .widget-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .widget-subtitle {
+    font-size: 13px;
+    color: rgba(0,0,0,0.55);
+    font-weight: 400;
+    margin-top: 2px;
+  }
+
+  .widget-message-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .guide-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,137,77,0.25);
+  }
+
+  .guide-avatar-placeholder {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FBCAAD 0%, #FF894D 100%);
+    flex-shrink: 0;
+    border: 2px solid rgba(255,137,77,0.25);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+  }
+
+  .widget-summary {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 300;
+    line-height: 1.6;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.55);
+    border-radius: 14px;
+    border-bottom-left-radius: 4px;
+    flex: 1;
+    position: relative;
+  }
+
+  .widget-summary-label {
+    font-size: 11px;
+    color: var(--text-light);
+    opacity: 0.9;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .send-preview-icon {
+    width: 11px; height: 11px;
+    opacity: 0.6;
+  }
+
+  .widget-support-list {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin-bottom: 16px;
+  }
+
+  .support-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    color: #1A1A1A;
+    font-weight: 400;
+    line-height: 1.4;
+  }
+
+  .support-dot {
+    width: 6px; height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  .widget-cta {
+    width: 100%;
+    padding: 13px 20px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    letter-spacing: 0.01em;
+  }
+
+  .widget-cta:hover {
+    background: var(--warm-brown);
+    transform: translateY(-1px);
+  }
+
+  .widget-cta-secondary {
+    width: 100%;
+    padding: 11px 20px;
+    background: transparent;
+    color: var(--text-light);
+    border: 1px solid rgba(255,137,77,0.2);
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .widget-cta-secondary:hover {
+    border-color: var(--text);
+    color: var(--text);
+  }
+
+  /* ── INPUT AREA ── */
+  .input-section {
+    width: 100%;
+    max-width: 680px;
+    padding: 20px 16px 32px;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, var(--cream) 30%);
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: #fff;
+    border: 1px solid rgba(255,137,77,0.3);
+    border-radius: 28px;
+    padding: 10px 10px 10px 20px;
+    box-shadow: 0 2px 20px rgba(92,74,58,0.08);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: var(--mila-orange, #FF894D);
+    box-shadow: 0 2px 24px rgba(255,137,77,0.15);
+  }
+
+  .input-wrapper textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    color: var(--text);
+    background: transparent;
+    resize: none;
+    min-height: 24px;
+    max-height: 120px;
+    line-height: 1.5;
+    padding: 2px 0;
+  }
+
+  .input-wrapper textarea::placeholder { color: #B0A898; }
+
+  .send-btn {
+    width: 40px; height: 40px;
+    background: var(--text);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .send-btn:hover { background: var(--warm-brown); transform: scale(1.05); }
+  .send-btn:disabled { background: #ccc; cursor: default; transform: none; }
+
+  .send-btn svg { width: 16px; height: 16px; }
+
+  .input-hint {
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--text-light);
+    opacity: 0.8;
+    margin-top: 10px;
+  }
+
+  /* ── EXAMPLE PROMPTS ── */
+  .example-prompts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+    padding: 0 16px;
+    max-width: 680px;
+    width: 100%;
+  }
+
+  .example-chip {
+    background: #fff;
+    border: 1px solid rgba(255,137,77,0.3);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 300;
+  }
+
+  .example-chip:hover {
+    border-color: var(--mila-orange, #FF894D);
+    color: var(--text);
+    background: #FFF6E8;
+  }
+
+  .hidden { display: none !important; }
+
+  /* ── GATE WALL ── */
+  .gate-card {
+    background: linear-gradient(160deg, #FFFADC 0%, #FFF6E8 100%);
+    border: 1px solid rgba(255,137,77,0.2);
+    border-radius: 20px;
+    padding: 24px 20px;
+    text-align: center;
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+    max-width: 82%;
+  }
+  .gate-card .gate-icon { font-size: 28px; margin-bottom: 12px; }
+  .gate-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 400;
+    color: var(--text); margin-bottom: 8px; line-height: 1.3;
+  }
+  .gate-card p {
+    font-size: 13.5px; color: var(--text-light);
+    font-weight: 300; line-height: 1.6; margin-bottom: 18px;
+  }
+  .gate-cta {
+    width: 100%; padding: 13px 20px;
+    background: var(--text); color: #fff; border: none;
+    border-radius: 50px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; cursor: pointer; transition: background 0.2s; margin-bottom: 8px;
+  }
+  .gate-cta:hover { background: var(--warm-brown); }
+  .gate-cta-soft {
+    width: 100%; padding: 11px; background: transparent;
+    color: var(--text-light); border: 1px solid rgba(255,137,77,0.18);
+    border-radius: 50px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; cursor: pointer; transition: all 0.2s;
+  }
+  .gate-cta-soft:hover { border-color: var(--mila-orange, #FF894D); color: var(--text); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,26,26,0.4);
+    display: flex; align-items: flex-end; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: var(--cream);
+    border-radius: 28px 28px 0 0;
+    padding: 32px 28px 44px;
+    width: 100%;
+    max-width: 500px;
+    animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .modal-pill {
+    width: 36px; height: 4px;
+    background: rgba(255,137,77,0.18);
+    border-radius: 2px;
+    margin: 0 auto 28px;
+  }
+
+  .modal h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .modal p {
+    font-size: 14px;
+    color: var(--text-light);
+    font-weight: 300;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .modal-cta {
+    width: 100%;
+    padding: 16px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background 0.2s;
+  }
+
+  .modal-cta:hover { background: var(--warm-brown); }
+
+  .modal-skip {
+    width: 100%;
+    padding: 14px;
+    background: transparent;
+    color: var(--text-light);
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--cream-dark); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero" id="hero">
+  <div class="logo">Mila</div>
+  <h1>You don't have to<br><em>Google this.</em></h1>
+  <p>Mila AI is trained by real doulas. Ask your question and get a real answer — any hour, any stage of pregnancy.</p>
+  <div class="disclaimer">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    AI-powered chat · not a substitute for medical advice
+  </div>
+</div>
+
+<!-- EXAMPLE PROMPTS -->
+<div class="example-prompts" id="examplePrompts">
+  <div class="example-chip" onclick="usePrompt(this)">I'm so tired at 10 weeks — is this normal?</div>
+  <div class="example-chip" onclick="usePrompt(this)">What should I expect at my 20-week scan?</div>
+  <div class="example-chip" onclick="usePrompt(this)">I'm anxious about labor. Where do I start?</div>
+  <div class="example-chip" onclick="usePrompt(this)">Can I still exercise in my third trimester?</div>
+</div>
+
+<!-- CHAT MESSAGES -->
+<div class="chat-container" id="chatContainer"></div>
+
+<!-- INPUT -->
+<div class="input-section">
+  <div class="input-wrapper">
+    <textarea
+      id="userInput"
+      placeholder="Start talking to Mila..."
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+  <div class="input-hint">Your question stays private · powered by Mila AI</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-pill"></div>
+    <h2>Meet your<br>pregnancy guide</h2>
+    <p>Book a free 20-minute intro call. Your guide will follow up personally and be with you through every step of your pregnancy journey.</p>
+    <button class="modal-cta" onclick="window.open('https://account.milasupport.com/onboarding?utm_source=chat-embed&utm_medium=chat&utm_campaign=trymila&utm_content=modal','_blank')">Book your free intro call →</button>
+    <button class="modal-skip" onclick="closeModal()">Maybe later</button>
+  </div>
+</div>
+
+<script>
+let conversationHistory = [];
+let widgetShown = false;
+let userMessageCount = 0;
+const FREE_MESSAGES = 3;
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function usePrompt(el) {
+  document.getElementById('userInput').value = el.textContent;
+  autoResize(document.getElementById('userInput'));
+  sendMessage();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  // Gate after 3 messages
+  if (userMessageCount >= FREE_MESSAGES) {
+    appendGate();
+    input.value = '';
+    return;
+  }
+  userMessageCount++;
+
+  // Shrink hero
+  document.getElementById('hero').classList.add('shrunk');
+  document.getElementById('examplePrompts').classList.add('hidden');
+
+  // Add user message
+  appendMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+
+  conversationHistory.push({ role: 'user', content: text });
+
+  // Disable send
+  document.getElementById('sendBtn').disabled = true;
+
+  // Show typing
+  const typingEl = appendTyping();
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversationHistory }),
+    });
+
+    const data = await response.json();
+    const fullText = data.content?.[0]?.text || "I'm here with you. Could you tell me a little more about what you're experiencing?";
+
+    // Parse out guide context
+    const guideContextMatch = fullText.match(/GUIDE_CONTEXT:\s*(.+)/);
+    const supportItemsMatch = fullText.match(/SUPPORT_ITEMS:\s*([\s\S]+)/);
+
+    const mainResponse = fullText.split('GUIDE_CONTEXT:')[0].trim();
+    const guideContext = guideContextMatch ? guideContextMatch[1].trim() : null;
+    const supportItems = supportItemsMatch
+      ? supportItemsMatch[1].trim().split('\n').map(s => s.replace(/^[-•*]\s*/, '').trim()).filter(Boolean).slice(0,3)
+      : null;
+
+    typingEl.remove();
+    appendMessage('ai', mainResponse);
+
+    conversationHistory.push({ role: 'assistant', content: mainResponse });
+
+    // Show widget after first AI response
+    if (!widgetShown) {
+      widgetShown = true;
+      setTimeout(() => appendWidget(guideContext, supportItems), 400);
+    }
+
+  } catch (err) {
+    typingEl.remove();
+    appendMessage('ai', "I'm here — it looks like there was a small hiccup. Could you try sending your question again?");
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  scrollToBottom();
+}
+
+function appendMessage(role, text) {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  if (role === 'ai') {
+    const label = document.createElement('div');
+    label.className = 'ai-label';
+    label.innerHTML = `<span class="sparkle">✦</span> Mila AI`;
+    div.appendChild(label);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  container.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function appendTyping() {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  const label = document.createElement('div');
+  label.className = 'ai-label';
+  label.innerHTML = `<span class="sparkle">✦</span> Mila AI`;
+  div.appendChild(label);
+  const typing = document.createElement('div');
+  typing.className = 'typing-bubble';
+  typing.innerHTML = '<span></span><span></span><span></span>';
+  div.appendChild(typing);
+  container.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function appendWidget(guideContext, supportItems) {
+  const container = document.getElementById('chatContainer');
+
+  const defaultItems = [
+    'Answer questions and ease your worries',
+    'Help you feel prepared for what\'s next',
+    'Be there when you need support most'
+  ];
+  const items = (supportItems && supportItems.length) ? supportItems : defaultItems;
+
+  // Convert guideContext (3rd person summary) to a first-person message
+  const firstPersonMessage = guideContext
+    .replace(/^(she|he|they) (is|are|has|have)/i, "I'm")
+    .replace(/^(the user|the person|someone) (is|are|has|have)/i, "I'm")
+    .replace(/^(she|he|they)/i, "I")
+    || guideContext;
+
+  const widget = document.createElement('div');
+  widget.className = 'message ai';
+  widget.innerHTML = `
+    <div class="ai-label"><span class="sparkle">✦</span> Your pregnancy guide</div>
+    <div class="guide-widget">
+      <div class="widget-header">
+        <div class="widget-icon">🌿</div>
+        <div>
+          <div class="widget-title">Loop in your pregnancy guide</div>
+          <div class="widget-subtitle">A real doula, just for you</div>
+        </div>
+      </div>
+
+      <div class="widget-message-row">
+        <div class="guide-avatar-placeholder">🤰</div>
+        <div class="widget-summary">
+          <div class="widget-summary-label">
+            <svg class="send-preview-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Message we'll send your guide
+          </div>
+          "${firstPersonMessage}"
+        </div>
+      </div>
+
+      <div class="widget-support-list">
+        ${items.map(item => `
+          <div class="support-item">
+            <div class="support-dot"></div>
+            <span>${item}</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="widget-cta" onclick="window.open('https://account.milasupport.com/onboarding?utm_source=chat-embed&utm_medium=chat&utm_campaign=trymila&utm_content=widget','_blank')">Book your free intro call</button>
+      <button class="widget-cta-secondary" onclick="continueChat()">Keep chatting with Mila AI</button>
+    </div>
+  `;
+  container.appendChild(widget);
+  scrollToBottom();
+}
+
+function appendGate() {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.innerHTML = `
+    <div class="gate-card">
+      <div class="gate-icon">🌿</div>
+      <h3>You're in good hands</h3>
+      <p>Create a free Mila account to keep this conversation going — and get matched with your personal pregnancy guide.</p>
+      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?utm_source=chat-embed&utm_medium=chat&utm_campaign=trymila&utm_content=gate','_blank')">Create your free account</button>
+      <button class="gate-cta-soft" onclick="openModal()">Book a free intro call instead</button>
+    </div>
+  `;
+  container.appendChild(div);
+
+  // Disable input
+  document.getElementById('userInput').disabled = true;
+  document.getElementById('userInput').placeholder = 'Create an account to continue...';
+  document.getElementById('sendBtn').disabled = true;
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 50);
+}
+
+function openModal() {
+  document.getElementById('modalOverlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function continueChat() {
+  document.getElementById('userInput').focus();
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
