@@ -146,6 +146,9 @@
     font-weight: 300;
   }
 
+  .bubble p { margin: 0; }
+  .bubble p + p { margin-top: 10px; }
+
   .message.user .bubble {
     background: var(--bubble-user);
     color: #fff;
@@ -744,7 +747,7 @@ function appendMessage(role, text) {
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  bubble.textContent = text;
+  bubble.innerHTML = text.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   div.appendChild(bubble);
   container.appendChild(div);
   scrollToBottom();
