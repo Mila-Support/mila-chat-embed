@@ -394,13 +394,6 @@
     position: sticky;
     bottom: 0;
     background: transparent;
-    transition: background 0.3s ease;
-  }
-
-  .input-section.chatting {
-    background: rgba(255, 255, 255, 0.5);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
   }
 
   .input-wrapper {
@@ -710,19 +703,21 @@ async function sendMessage() {
   }
   userMessageCount++;
 
-  // Shrink hero, add blur to input bar
+  // Shrink hero
   document.getElementById('hero').classList.add('shrunk');
   document.getElementById('examplePrompts').classList.add('hidden');
-  document.querySelector('.input-section').classList.add('chatting');
 
   // Add user message
   appendMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
 
-  // Dismiss keyboard first, then scroll to top
+  // Dismiss keyboard, then scroll to top
   input.blur();
-  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
+  setTimeout(() => {
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, 150);
 
   conversationHistory.push({ role: 'user', content: text });
 
