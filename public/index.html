@@ -46,7 +46,14 @@
   body {
     font-family: 'Inter', sans-serif;
     background: transparent;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  #scrollContainer {
+    height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -615,6 +622,7 @@
 </style>
 </head>
 <body>
+<div id="scrollContainer">
 
 <!-- HERO -->
 <div class="hero" id="hero">
@@ -654,6 +662,8 @@
   </div>
   <div class="input-hint">Your question stays private · powered by Mila AI</div>
 </div>
+
+</div><!-- /scrollContainer -->
 
 <!-- MODAL -->
 <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModalOutside(event)">
@@ -715,8 +725,7 @@ async function sendMessage() {
   // Dismiss keyboard, then scroll to top
   input.blur();
   setTimeout(() => {
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    document.getElementById('scrollContainer').scrollTop = 0;
   }, 150);
 
   conversationHistory.push({ role: 'user', content: text });
@@ -866,10 +875,8 @@ function appendGate() {
 
 function scrollToBottom() {
   setTimeout(() => {
-    const container = document.getElementById('chatContainer');
-    const last = container.lastElementChild;
-    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    const sc = document.getElementById('scrollContainer');
+    sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
   }, 50);
 }
 
