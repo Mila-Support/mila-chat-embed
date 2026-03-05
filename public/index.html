@@ -396,6 +396,10 @@
     background: transparent;
   }
 
+  .input-section.unstuck {
+    position: static;
+  }
+
   .input-wrapper {
     display: flex;
     align-items: center;
@@ -703,14 +707,18 @@ async function sendMessage() {
   }
   userMessageCount++;
 
-  // Shrink hero
+  // Shrink hero, unstick input
   document.getElementById('hero').classList.add('shrunk');
   document.getElementById('examplePrompts').classList.add('hidden');
+  document.querySelector('.input-section').classList.add('unstuck');
 
   // Add user message
   appendMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
+
+  // Scroll to top so user sees the conversation from the start
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 
   conversationHistory.push({ role: 'user', content: text });
 
