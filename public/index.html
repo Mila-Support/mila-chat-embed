@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mila – Ask Your Pregnancy Question</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -24,7 +24,7 @@
     --sage-light: #FBCAAD;
     --warm-brown: #FF7A3A;
     --text: #1A1A1A;
-    --text-light: #666666;
+    --text-light: #000000;
     --bubble-ai: #FFFFFF;
     --bubble-user: #1A1A1A;
     --widget-bg: #FFF6E8;
@@ -33,7 +33,7 @@
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
+    background: url('/background.png') center/cover no-repeat fixed;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -70,10 +70,10 @@
   }
 
   .hero h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(36px, 6vw, 54px);
-    font-weight: 300;
-    color: var(--text);
+    font-family: 'PT Serif', serif;
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 400;
+    color: #000000;
     line-height: 1.2;
     margin-bottom: 14px;
     transition: all 0.5s ease;
@@ -90,7 +90,7 @@
     font-weight: 300;
     line-height: 1.6;
     max-width: 420px;
-    margin: 0 auto 36px;
+    margin: 0 auto 12px;
     transition: all 0.4s ease;
   }
 
@@ -378,7 +378,7 @@
     padding: 20px 16px 32px;
     position: sticky;
     bottom: 0;
-    background: linear-gradient(to bottom, transparent, var(--cream) 30%);
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.95) 30%);
   }
 
   .input-wrapper {
@@ -446,8 +446,8 @@
     flex-wrap: wrap;
     gap: 8px;
     justify-content: center;
-    margin-bottom: 24px;
-    padding: 0 16px;
+    margin-top: 12px;
+    padding: 0;
     max-width: 680px;
     width: 100%;
   }
@@ -586,6 +586,11 @@
     cursor: pointer;
   }
 
+  @media (min-width: 768px) {
+    .hero { padding-top: 120px; }
+    .hero.shrunk { padding-top: 120px; }
+  }
+
   /* scrollbar */
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -602,14 +607,6 @@
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
     AI-powered chat · not a substitute for medical advice
   </div>
-</div>
-
-<!-- EXAMPLE PROMPTS -->
-<div class="example-prompts" id="examplePrompts">
-  <div class="example-chip" onclick="usePrompt(this)">What can a doula actually help me with?</div>
-  <div class="example-chip" onclick="usePrompt(this)">I'm feeling really anxious about labor</div>
-  <div class="example-chip" onclick="usePrompt(this)">I can't sleep and it's 3am — is this normal?</div>
-  <div class="example-chip" onclick="usePrompt(this)">My partner doesn't know how to support me</div>
 </div>
 
 <!-- CHAT MESSAGES -->
@@ -632,6 +629,13 @@
     </button>
   </div>
   <div class="input-hint">Your question stays private · powered by Mila AI</div>
+  <!-- EXAMPLE PROMPTS -->
+  <div class="example-prompts" id="examplePrompts">
+    <div class="example-chip" onclick="usePrompt(this)">What can a doula actually help me with?</div>
+    <div class="example-chip" onclick="usePrompt(this)">I'm feeling really anxious about labor</div>
+    <div class="example-chip" onclick="usePrompt(this)">I can't sleep and it's 3am — is this normal?</div>
+    <div class="example-chip" onclick="usePrompt(this)">My partner doesn't know how to support me</div>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -649,7 +653,7 @@
 let conversationHistory = [];
 let widgetShown = false;
 let userMessageCount = 0;
-const FREE_MESSAGES = 3;
+const FREE_MESSAGES = 2;
 
 function autoResize(el) {
   el.style.height = 'auto';
@@ -822,11 +826,9 @@ function appendGate() {
   div.className = 'message ai';
   div.innerHTML = `
     <div class="gate-card">
-      <div class="gate-icon">🌿</div>
-      <h3>You're in good hands</h3>
-      <p>Create a free Mila account to keep this conversation going — and get matched with your personal pregnancy guide.</p>
-      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Create your free account</button>
-      <button class="gate-cta-soft" onclick="openModal()">Book a free intro call instead</button>
+      <h3>More personalized support awaits</h3>
+      <p>Create a Mila account to keep this conversation going — and get matched with your personal pregnancy guide.</p>
+      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Create your account</button>
     </div>
   `;
   container.appendChild(div);
