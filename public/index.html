@@ -394,10 +394,13 @@
     position: sticky;
     bottom: 0;
     background: transparent;
+    transition: background 0.3s ease;
   }
 
-  .input-section.unstuck {
-    position: static;
+  .input-section.chatting {
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   .input-wrapper {
@@ -707,18 +710,19 @@ async function sendMessage() {
   }
   userMessageCount++;
 
-  // Shrink hero, unstick input
+  // Shrink hero, add blur to input bar
   document.getElementById('hero').classList.add('shrunk');
   document.getElementById('examplePrompts').classList.add('hidden');
-  document.querySelector('.input-section').classList.add('unstuck');
+  document.querySelector('.input-section').classList.add('chatting');
 
   // Add user message
   appendMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
 
-  // Scroll to top so user sees the conversation from the start
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Dismiss keyboard first, then scroll to top
+  input.blur();
+  setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
 
   conversationHistory.push({ role: 'user', content: text });
 
