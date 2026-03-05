@@ -46,19 +46,7 @@
   body {
     font-family: 'Inter', sans-serif;
     background: transparent;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #scrollContainer {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    width: 100%;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -403,7 +391,8 @@
     width: 100%;
     max-width: 680px;
     padding: 8px 16px 32px;
-    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
     background: transparent;
   }
 
@@ -626,7 +615,6 @@
 </style>
 </head>
 <body>
-<div id="scrollContainer">
 
 <!-- HERO -->
 <div class="hero" id="hero">
@@ -640,8 +628,6 @@
 
 <!-- CHAT MESSAGES -->
 <div class="chat-container" id="chatContainer"></div>
-
-</div><!-- /scrollContainer -->
 
 <!-- INPUT -->
 <div class="input-section">
@@ -729,7 +715,8 @@ async function sendMessage() {
   // Dismiss keyboard, then scroll to top
   input.blur();
   setTimeout(() => {
-    document.getElementById('scrollContainer').scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   }, 150);
 
   conversationHistory.push({ role: 'user', content: text });
@@ -879,8 +866,10 @@ function appendGate() {
 
 function scrollToBottom() {
   setTimeout(() => {
-    const sc = document.getElementById('scrollContainer');
-    sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+    const container = document.getElementById('chatContainer');
+    const last = container.lastElementChild;
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }, 50);
 }
 
