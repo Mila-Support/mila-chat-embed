@@ -10,8 +10,15 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   html {
-    background: url('/background.png') center/cover no-repeat fixed;
     min-height: 100%;
+  }
+
+  html::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('/background.png') center/cover no-repeat;
+    z-index: -1;
   }
 
   :root {
@@ -122,7 +129,7 @@
   .chat-container {
     width: 100%;
     max-width: 680px;
-    padding: 0 16px;
+    padding: 0 16px 16px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -212,7 +219,10 @@
     background: #FFF6E8;
     border-radius: 18px;
     padding: 20px;
+    width: 82%;
     max-width: 82%;
+    box-sizing: border-box;
+    overflow-wrap: break-word;
     animation: fadeUp 0.5s ease 0.2s forwards;
     opacity: 0;
     border: 1px solid rgba(255,137,77,0.2);
@@ -531,6 +541,8 @@
     padding: 32px 28px 44px;
     width: 100%;
     max-width: 500px;
+    max-height: 85vh;
+    overflow-y: auto;
     animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1);
   }
 
@@ -846,7 +858,12 @@ function appendGate() {
 }
 
 function scrollToBottom() {
-  setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 50);
+  setTimeout(() => {
+    const container = document.getElementById('chatContainer');
+    const last = container.lastElementChild;
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }, 50);
 }
 
 function openModal() {
