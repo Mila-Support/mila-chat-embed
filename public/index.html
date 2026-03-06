@@ -151,7 +151,7 @@
   .chat-container {
     width: 100%;
     max-width: 680px;
-    padding: 0 16px 16px;
+    padding: 0 16px 140px;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -876,7 +876,7 @@ function appendGate() {
     <div class="gate-card">
       <h3>More personalized support awaits</h3>
       <p>Create a Mila account to keep this conversation going — and get matched with your personal pregnancy guide.</p>
-      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Create your account</button>
+      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Start your free 7-day trial</button>
     </div>
   `;
   container.appendChild(div);
@@ -890,10 +890,7 @@ function appendGate() {
 
 function scrollToBottom() {
   setTimeout(() => {
-    const container = document.getElementById('chatContainer');
-    const last = container.lastElementChild;
-    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    else window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }, 50);
 }
 
