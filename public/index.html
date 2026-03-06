@@ -893,7 +893,8 @@ function appendGate() {
 
 function scrollToBottom() {
   setTimeout(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    const last = document.getElementById('chatContainer').lastElementChild;
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, 50);
 }
 
