@@ -57,13 +57,13 @@
   .hero {
     width: 100%;
     max-width: 680px;
-    padding: 90px 24px 32px;
+    padding: 48px 24px 32px;
     text-align: center;
     transition: all 0.5s ease;
   }
 
   .hero.shrunk {
-    padding: 90px 24px 0;
+    padding: 48px 24px 0;
   }
 
   .logo-img {
@@ -628,6 +628,20 @@
     cursor: pointer;
   }
 
+  /* ── SIMPLE CTA (after 2nd message) ── */
+  .simple-cta-card {
+    background: linear-gradient(160deg, #FFFADC 0%, #FFF6E8 100%);
+    border: 1px solid rgba(255,137,77,0.2);
+    border-radius: 20px;
+    padding: 16px 20px;
+    max-width: 82%;
+    animation: fadeUp 0.5s ease forwards;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
   @media (min-width: 768px) {
     .hero { padding-top: 120px; }
     .hero.shrunk { padding-top: 120px; }
@@ -773,10 +787,12 @@ async function sendMessage() {
 
     conversationHistory.push({ role: 'assistant', content: mainResponse });
 
-    // Show widget after first AI response
+    // Show widget after first AI response, simple CTA after subsequent
     if (!widgetShown) {
       widgetShown = true;
       setTimeout(() => appendWidget(guideContext), 400);
+    } else {
+      setTimeout(() => appendSimpleCTA(), 400);
     }
 
   } catch (err) {
@@ -828,19 +844,12 @@ function appendTyping() {
 
 function appendWidget(guideContext) {
   const container = document.getElementById('chatContainer');
-
-  const staticSupportItems = [
-    'Ongoing support through pregnancy and postpartum',
-    'Help you understand your options and feel prepared',
-    'A steady presence for questions, worries, and big decisions',
-  ];
-
   const message = guideContext || 'I have a question and would love some support.';
 
   const widget = document.createElement('div');
   widget.className = 'message ai';
   widget.innerHTML = `
-    <div class="ai-label"><span class="sparkle">✦</span> Loop in your pregnancy guide</div>
+    <div class="ai-label"><span class="sparkle">✦</span> Loop in my pregnancy guide (a certified doula)</div>
     <div class="guide-widget">
       <div class="widget-message-row">
         <img src="/doula.png" class="guide-avatar" alt="Your pregnancy guide" onerror="this.outerHTML='<div class=\'guide-avatar-placeholder\'>🌿</div>'">
@@ -852,22 +861,25 @@ function appendWidget(guideContext) {
           "${message}"
         </div>
       </div>
-
-      <div class="widget-support-label">Here's how your pregnancy guide can help:</div>
-      <div class="widget-support-list">
-        ${staticSupportItems.map(item => `
-          <div class="support-item">
-            <div class="support-dot"></div>
-            <span>${item}</span>
-          </div>
-        `).join('')}
-      </div>
-      <button class="widget-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-widget','_blank')">Start your free 7-day trial</button>
-      <div style="font-size:12px;color:rgba(0,0,0,0.45);text-align:center;margin-top:8px;line-height:1.5;">Message your guide · Book a call · Unlimited Mila AI chat</div>
+      <button class="widget-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-widget','_blank')">Message my guide</button>
       <button class="widget-cta-secondary" onclick="continueChat(this)">Keep chatting with Mila AI</button>
     </div>
   `;
   container.appendChild(widget);
+  scrollToBottom();
+}
+
+function appendSimpleCTA() {
+  const container = document.getElementById('chatContainer');
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.innerHTML = `
+    <div class="simple-cta-card">
+      <button class="widget-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-cta','_blank')">Start your free 7-day trial</button>
+      <button class="widget-cta-secondary" onclick="this.closest('.message.ai').remove()">Keep chatting with Mila AI</button>
+    </div>
+  `;
+  container.appendChild(div);
   scrollToBottom();
 }
 
