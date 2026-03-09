@@ -50,20 +50,19 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-bottom: 140px;
   }
 
   /* ── LANDING HERO ── */
   .hero {
     width: 100%;
     max-width: 680px;
-    padding: 48px 24px 32px;
+    padding: 80px 24px 32px;
     text-align: center;
     transition: all 0.5s ease;
   }
 
   .hero.shrunk {
-    padding: 48px 24px 0;
+    padding: 80px 24px 0;
   }
 
   .logo-img {
@@ -411,14 +410,17 @@
 
   /* ── INPUT AREA ── */
   .input-section {
-    position: fixed;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
     width: 100%;
     max-width: 680px;
     padding: 8px 16px 32px;
     z-index: 10;
+  }
+
+  .input-section.is-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .input-wrapper {
@@ -743,9 +745,11 @@ async function sendMessage() {
   }
   userMessageCount++;
 
-  // Shrink hero
+  // Shrink hero, fix input bar
   document.getElementById('hero').classList.add('shrunk');
   document.getElementById('examplePrompts').classList.add('hidden');
+  document.querySelector('.input-section').classList.add('is-fixed');
+  document.body.style.paddingBottom = '140px';
 
   // Add user message
   appendMessage('user', text);
