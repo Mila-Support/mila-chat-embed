@@ -758,6 +758,11 @@ async function sendMessage() {
   document.querySelector('.input-section').classList.add('is-fixed');
   document.body.style.paddingBottom = '140px';
 
+  // Track first message
+  if (userMessageCount === 1) {
+    posthog.capture('chat_started', { first_message: text });
+  }
+
   // Add user message
   appendMessage('user', text);
   input.value = '';
