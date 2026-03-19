@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages } = req.body;
+  const { messages, userContext, ctaCount = 0 } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing or invalid messages array' });
@@ -110,10 +110,17 @@ Examples:
 
 # Output Format
 
-After your response, on a new line, output exactly this format:
-GUIDE_CONTEXT: [1 sentence written in first person as if the user is sending a message to their doula, e.g. "I'm 32 weeks and struggling with back pain — can we talk through some relief options?"]
+Write your response as plain conversational text only. No GUIDE_CONTEXT tag.
 
-Do not add any other text after GUIDE_CONTEXT.`;
+If — and only if — your response is highly relevant to one of the topics below, append a CTA tag on a new line at the very end. Use this at most ${2 - ctaCount} more time(s) total across the whole conversation. Do not force it.
+
+Format: CTA: [topic]
+
+Topics: symptoms, sleep, nausea, anxiety, overwhelmed, relationship, birth_plan, hospital_bag, feeding, postpartum_recovery, baby_blues, ttc_cycle, ttc_emotional, fertility_treatment`;
+
+  const finalSystemPrompt = userContext
+    ? `${systemPrompt}\n\n# User Profile\n${userContext}\nUse this naturally — address them by name occasionally, and tailor your responses to their stage.`
+    : systemPrompt;
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -125,7 +132,7 @@ Do not add any other text after GUIDE_CONTEXT.`;
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
-      system: systemPrompt,
+      system: finalSystemPrompt,
       messages,
     }),
   });
