@@ -125,7 +125,7 @@ Topics: symptoms, sleep, nausea, anxiety, overwhelmed, relationship, birth_plan,
   }
 
   if (isFirstMessage) {
-    finalSystemPrompt += `\n\n# First Message Instruction\nThis is the user's very first message. Do NOT give a full answer yet. Instead: acknowledge their question warmly in 1-2 sentences, then say you want to understand their situation a bit better before giving your full take. Be natural and conversational — like a doula who asks a few quick questions before diving in. Do not ask any questions yourself; the app will handle that. End your response inviting them to share a bit more.`;
+    finalSystemPrompt += `\n\n# First Message Instruction\nThis is the user's very first message. Do NOT give a full answer yet. Acknowledge their question warmly in 1 sentence, then tell them you'll ask them a few quick questions first so you can give them the most helpful guidance for where they're at. Say it in first person — "I'll ask you a few quick questions..." — as if you are personally going to ask them. Keep it to 2 sentences max. Do not ask any questions in this response.`;
   }
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
