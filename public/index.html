@@ -779,23 +779,23 @@ let userMessageCount = 0;
 let personalizationStep = 0; // 0=not started, 1=name, 2=status, 3=date, 4=done
 let userProfile = { name: null, status: null, date: null };
 let ctaShownCount = 0;
-const FREE_MESSAGES = 10;
+const FREE_MESSAGES = 6;
 
 const CTA_CONFIG = {
-  symptoms:            { text: "Our lead doula Deja specializes in exactly this",                              link: "book a free 15-min call" },
-  sleep:               { text: "Sleep is one of the most common things our doulas help with",                 link: "talk to one free" },
-  nausea:              { text: "If it's affecting your daily life, Deja can help",                            link: "book a free call" },
-  anxiety:             { text: "Birth fear is something Deja helps with a lot",                               link: "talk to her free" },
-  overwhelmed:         { text: "This is exactly what our lead doula Deja is here for",                        link: "book a free 15-min call" },
-  relationship:        { text: "Our doulas talk about relationship stress more than almost anything else",     link: "book a free call" },
-  birth_plan:          { text: "Building a birth plan is easier with a Mila doula call",                      link: "book yours free" },
-  hospital_bag:        { text: "Our doulas have strong opinions on what actually matters",                     link: "ask one free" },
-  feeding:             { text: "Feeding decisions are some of the biggest you'll make",                        link: "talk it through with a Mila expert" },
-  postpartum_recovery: { text: "Recovery questions are exactly what our postpartum experts are for",           link: "book a free call" },
-  baby_blues:          { text: "If something feels off, it's worth talking to someone",                       link: "book a free call with Deja" },
-  ttc_cycle:           { text: "Our fertility-informed experts help cut through the noise",                    link: "talk to one free" },
-  ttc_emotional:       { text: "This is a lot to carry — our doulas get it",                                  link: "book a free call" },
-  fertility_treatment: { text: "Our doulas have supported hundreds of women through IUI and IVF",             link: "talk to one free" },
+  symptoms:            { text: "By the way, Mila was built for exactly this — get expert answers 24/7 or message a doula when you need one",   link: "try Mila free" },
+  sleep:               { text: "By the way, sleep issues come up constantly in Mila — our doulas have a lot of thoughts on this",              link: "message one free" },
+  nausea:              { text: "By the way, this is one of the most common things Mila users ask about — you don't have to guess through it",  link: "get expert answers" },
+  anxiety:             { text: "By the way, birth anxiety is something Mila doulas specialize in — you can message Deja anytime",              link: "try it free" },
+  overwhelmed:         { text: "By the way, this is exactly what Mila was built for — expert support whenever you need it, 24/7",              link: "try Mila free" },
+  relationship:        { text: "By the way, relationship stress during pregnancy is one of the most common things Mila doulas talk about",     link: "message one free" },
+  birth_plan:          { text: "By the way, Mila can help you build a plan that actually reflects what you want — with expert guidance",       link: "try it free" },
+  hospital_bag:        { text: "By the way, Mila doulas have strong opinions on what actually matters in that bag",                            link: "ask one free" },
+  feeding:             { text: "By the way, feeding is one of the biggest decisions you'll make — Mila has expert doulas who can help",        link: "talk it through free" },
+  postpartum_recovery: { text: "By the way, Mila was built for the fourth trimester too — daily guidance and doulas on call whenever you need", link: "try it free" },
+  baby_blues:          { text: "By the way, if something feels off it's worth talking to someone — Mila doulas are available anytime",        link: "message one free" },
+  ttc_cycle:           { text: "By the way, Mila has fertility-informed experts who help cut through all the noise around cycle tracking",     link: "talk to one free" },
+  ttc_emotional:       { text: "By the way, the emotional side of TTC is real — Mila doulas are there for exactly this, whenever you need",   link: "get support free" },
+  fertility_treatment: { text: "By the way, Mila doulas have supported hundreds of women through IUI and IVF — you don't have to do this alone", link: "talk to one free" },
 };
 
 function buildUserContext() {
@@ -899,7 +899,7 @@ async function sendMessage() {
 
     // Remaining notice from message 6 onward
     const remaining = FREE_MESSAGES - userMessageCount;
-    if (remaining >= 1 && remaining <= 4) {
+    if (remaining >= 1 && remaining <= 2) {
       setTimeout(() => appendRemainingNotice(remaining), 800);
     }
 
@@ -1130,7 +1130,7 @@ function appendGate() {
     <div class="gate-card">
       <h3>Keep the conversation going</h3>
       <p>You've used your free messages. Create a free account to continue chatting with Mila and get matched with your personal pregnancy guide.</p>
-      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Start your free 14-day trial</button>
+      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Try Mila Today</button>
     </div>
   `;
   container.appendChild(div);
