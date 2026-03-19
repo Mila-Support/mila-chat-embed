@@ -863,7 +863,6 @@ async function sendMessage() {
   appendMessage('user', text);
   input.value = '';
   input.style.height = 'auto';
-  input.blur();
 
   conversationHistory.push({ role: 'user', content: text });
   document.getElementById('sendBtn').disabled = true;
@@ -1144,8 +1143,14 @@ function appendGate() {
 function scrollToBottom() {
   setTimeout(() => {
     const last = document.getElementById('chatContainer').lastElementChild;
-    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, 50);
+    if (!last) return;
+    const keyboardHeight = window.visualViewport
+      ? Math.max(0, window.innerHeight - window.visualViewport.height - (window.visualViewport.offsetTop || 0))
+      : 0;
+    const inputHeight = document.querySelector('.input-section')?.offsetHeight || 100;
+    last.style.scrollMarginBottom = `${keyboardHeight + inputHeight + 16}px`;
+    last.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, 100);
 }
 
 function openModal() {
@@ -1159,6 +1164,35 @@ function closeModal() {
 function closeModalOutside(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
+
+// ── KEYBOARD LIFT ──
+// Lifts the input bar above the keyboard on mobile (iOS Safari iframe pattern)
+(function setupKeyboardLift() {
+  if (!window.visualViewport) return;
+  const inputSection = document.querySelector('.input-section');
+
+  function onViewportChange() {
+    const keyboardHeight = Math.max(
+      0,
+      window.innerHeight - window.visualViewport.height - (window.visualViewport.offsetTop || 0)
+    );
+    inputSection.style.transform = keyboardHeight > 0
+      ? `translateY(-${keyboardHeight}px)`
+      : '';
+    // When keyboard opens, scroll last message into view above it
+    if (keyboardHeight > 0) {
+      const last = document.getElementById('chatContainer').lastElementChild;
+      if (last) {
+        const inputHeight = inputSection.offsetHeight || 100;
+        last.style.scrollMarginBottom = `${keyboardHeight + inputHeight + 16}px`;
+        setTimeout(() => last.scrollIntoView({ behavior: 'smooth', block: 'end' }), 50);
+      }
+    }
+  }
+
+  window.visualViewport.addEventListener('resize', onViewportChange);
+  window.visualViewport.addEventListener('scroll', onViewportChange);
+})();
 </script>
 </body>
 </html>
