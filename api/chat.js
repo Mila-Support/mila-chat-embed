@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages, userContext, ctaCount = 0 } = req.body;
+  const { messages, userContext, ctaCount = 0, isFirstMessage = false } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing or invalid messages array' });
@@ -118,9 +118,15 @@ Format: CTA: [topic]
 
 Topics: symptoms, sleep, nausea, anxiety, overwhelmed, relationship, birth_plan, hospital_bag, feeding, postpartum_recovery, baby_blues, ttc_cycle, ttc_emotional, fertility_treatment`;
 
-  const finalSystemPrompt = userContext
-    ? `${systemPrompt}\n\n# User Profile\n${userContext}\nUse this naturally — address them by name occasionally, and tailor your responses to their stage.`
-    : systemPrompt;
+  let finalSystemPrompt = systemPrompt;
+
+  if (userContext) {
+    finalSystemPrompt += `\n\n# User Profile\n${userContext}\nUse this naturally — address them by name occasionally, and tailor your responses to their stage.`;
+  }
+
+  if (isFirstMessage) {
+    finalSystemPrompt += `\n\n# First Message Instruction\nThis is the user's very first message. Do NOT give a full answer yet. Instead: acknowledge their question warmly in 1-2 sentences, then say you want to understand their situation a bit better before giving your full take. Be natural and conversational — like a doula who asks a few quick questions before diving in. Do not ask any questions yourself; the app will handle that. End your response inviting them to share a bit more.`;
+  }
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',

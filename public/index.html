@@ -876,6 +876,7 @@ async function sendMessage() {
         messages: conversationHistory,
         userContext: buildUserContext(),
         ctaCount: ctaShownCount,
+        isFirstMessage: userMessageCount === 1,
       }),
     });
 
@@ -1081,8 +1082,8 @@ async function sendPersonalizationResponse() {
     parts.push(`${label} ${userProfile.date}`);
   }
   const triggerContent = parts.length > 0
-    ? `Just so you know — ${parts.join(', ')}.`
-    : "I'd rather skip those questions — let's just keep going.";
+    ? `Just so you know — ${parts.join(', ')}. Now can you give me your full answer?`
+    : "I'd rather skip those questions — can you give me your full answer now?";
 
   const triggerMessages = [...conversationHistory, { role: 'user', content: triggerContent }];
 
