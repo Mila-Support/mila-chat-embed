@@ -163,6 +163,7 @@
     flex-direction: column;
     animation: fadeUp 0.4s ease forwards;
     opacity: 0;
+    scroll-margin-bottom: 160px;
   }
 
   @keyframes fadeUp {
@@ -675,23 +676,26 @@
     background: #FFF6E8;
   }
 
-  /* ── INLINE CTA ── */
-  .inline-cta {
-    margin-top: 10px;
-    font-size: 13px;
-    color: rgba(0,0,0,0.55);
-    font-weight: 300;
-    line-height: 1.5;
-    max-width: 82%;
+  .personalization-chip.skip {
+    background: #f5f5f5;
+    border-color: #ddd;
+    color: rgba(0,0,0,0.4);
   }
 
-  .inline-cta a {
+  .personalization-chip.skip:hover {
+    background: #eee;
+    border-color: #ccc;
+    color: rgba(0,0,0,0.6);
+  }
+
+  /* ── INLINE CTA (inside bubble) ── */
+  .bubble .cta-link {
     color: var(--mila-orange);
     text-decoration: none;
     font-weight: 400;
   }
 
-  .inline-cta a:hover { text-decoration: underline; }
+  .bubble .cta-link:hover { text-decoration: underline; }
 
   /* ── REMAINING NOTICE ── */
   .remaining-notice {
@@ -779,17 +783,17 @@ const FREE_MESSAGES = 10;
 
 const CTA_CONFIG = {
   symptoms:            { text: "Our lead doula Deja specializes in exactly this",                              link: "book a free 15-min call" },
-  sleep:               { text: "Sleep issues are one of the most common things our doulas help with",         link: "talk to one free" },
+  sleep:               { text: "Sleep is one of the most common things our doulas help with",                 link: "talk to one free" },
   nausea:              { text: "If it's affecting your daily life, Deja can help",                            link: "book a free call" },
-  anxiety:             { text: "Birth fear is one of the things Deja helps most with",                        link: "talk to her free" },
+  anxiety:             { text: "Birth fear is something Deja helps with a lot",                               link: "talk to her free" },
   overwhelmed:         { text: "This is exactly what our lead doula Deja is here for",                        link: "book a free 15-min call" },
   relationship:        { text: "Our doulas talk about relationship stress more than almost anything else",     link: "book a free call" },
-  birth_plan:          { text: "Building a birth plan is exactly what a free doula call is for",              link: "book yours" },
-  hospital_bag:        { text: "Our experts have strong opinions on this",                                    link: "ask one free" },
-  feeding:             { text: "Feeding decisions are big — our experts help you think it through",           link: "talk to one free" },
-  postpartum_recovery: { text: "Recovery questions are exactly what our postpartum experts are for",          link: "book a free call" },
-  baby_blues:          { text: "If something feels off, it's worth talking to Deja",                         link: "book a free 15-min call" },
-  ttc_cycle:           { text: "Our fertility-informed experts help cut through the noise",                   link: "talk to one free" },
+  birth_plan:          { text: "Building a birth plan is easier with a Mila doula call",                      link: "book yours free" },
+  hospital_bag:        { text: "Our doulas have strong opinions on what actually matters",                     link: "ask one free" },
+  feeding:             { text: "Feeding decisions are some of the biggest you'll make",                        link: "talk it through with a Mila expert" },
+  postpartum_recovery: { text: "Recovery questions are exactly what our postpartum experts are for",           link: "book a free call" },
+  baby_blues:          { text: "If something feels off, it's worth talking to someone",                       link: "book a free call with Deja" },
+  ttc_cycle:           { text: "Our fertility-informed experts help cut through the noise",                    link: "talk to one free" },
   ttc_emotional:       { text: "This is a lot to carry — our doulas get it",                                  link: "book a free call" },
   fertility_treatment: { text: "Our doulas have supported hundreds of women through IUI and IVF",             link: "talk to one free" },
 };
@@ -927,10 +931,9 @@ function appendMessage(role, text, ctaType = null) {
   if (role === 'ai' && ctaType && CTA_CONFIG[ctaType] && ctaShownCount < 2) {
     ctaShownCount++;
     const cfg = CTA_CONFIG[ctaType];
-    const ctaEl = document.createElement('div');
-    ctaEl.className = 'inline-cta';
-    ctaEl.innerHTML = `${cfg.text} — <a href="https://account.milasupport.com/onboarding?ref=cta-${ctaType}" target="_blank">${cfg.link} →</a>`;
-    div.appendChild(ctaEl);
+    const ctaP = document.createElement('p');
+    ctaP.innerHTML = `${cfg.text} — <a class="cta-link" href="https://account.milasupport.com/onboarding?ref=cta-${ctaType}" target="_blank">${cfg.link} →</a>`;
+    bubble.appendChild(ctaP);
   }
 
   container.appendChild(div);
@@ -977,8 +980,8 @@ function startPersonalization() {
 function showPersonalizationQuestion(step) {
   if (step === 1) {
     appendPersonalizationMessage(
-      "To help me personalise my answers — what's your name?",
-      [{ label: 'Skip', value: '__skip__' }]
+      "To help me personalize my answers — what's your name?",
+      [{ label: 'Skip question', value: '__skip__', skip: true }]
     );
   } else if (step === 2) {
     const greeting = userProfile.name ? `Nice to meet you, ${userProfile.name}! ` : '';
@@ -988,14 +991,14 @@ function showPersonalizationQuestion(step) {
         { label: 'Pregnant', value: 'pregnant' },
         { label: 'TTC', value: 'ttc' },
         { label: 'Postpartum', value: 'postpartum' },
-        { label: 'Skip', value: '__skip__' },
+        { label: 'Skip question', value: '__skip__', skip: true },
       ]
     );
   } else if (step === 3) {
     const questions = { pregnant: "What's your due date?", postpartum: "When was your baby born?", ttc: "How long have you been trying?" };
     const q = questions[userProfile.status];
     if (q) {
-      appendPersonalizationMessage(q, [{ label: 'Skip', value: '__skip__' }]);
+      appendPersonalizationMessage(q, [{ label: 'Skip question', value: '__skip__', skip: true }]);
     } else {
       personalizationStep = 4;
     }
@@ -1021,7 +1024,7 @@ function appendPersonalizationMessage(text, chips) {
   chipsDiv.className = 'personalization-chips';
   chips.forEach(chip => {
     const btn = document.createElement('button');
-    btn.className = 'personalization-chip';
+    btn.className = `personalization-chip${chip.skip ? ' skip' : ''}`;
     btn.textContent = chip.label;
     btn.onclick = () => handlePersonalizationChip(chip.value, chip.label);
     chipsDiv.appendChild(btn);
@@ -1056,10 +1059,52 @@ function advancePersonalization(value) {
       setTimeout(() => showPersonalizationQuestion(3), 400);
     } else {
       personalizationStep = 4;
+      setTimeout(() => sendPersonalizationResponse(), 400);
     }
   } else if (personalizationStep === 3) {
     userProfile.date = value;
     personalizationStep = 4;
+    setTimeout(() => sendPersonalizationResponse(), 400);
+  }
+}
+
+async function sendPersonalizationResponse() {
+  const typingEl = appendTyping();
+  const parts = [];
+  if (userProfile.name) parts.push(`my name is ${userProfile.name}`);
+  if (userProfile.status) {
+    const s = { pregnant: "I'm pregnant", ttc: "I'm trying to conceive", postpartum: "I'm postpartum" };
+    parts.push(s[userProfile.status]);
+  }
+  if (userProfile.date) {
+    const label = userProfile.status === 'pregnant' ? 'my due date is' : userProfile.status === 'postpartum' ? 'my baby was born' : 'I\'ve been trying since';
+    parts.push(`${label} ${userProfile.date}`);
+  }
+  const triggerContent = parts.length > 0
+    ? `Just so you know — ${parts.join(', ')}.`
+    : "I'd rather skip those questions — let's just keep going.";
+
+  const triggerMessages = [...conversationHistory, { role: 'user', content: triggerContent }];
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: triggerMessages, userContext: buildUserContext(), ctaCount: ctaShownCount }),
+    });
+    const data = await response.json();
+    const fullText = data.content?.[0]?.text || '';
+    const ctaMatch = fullText.match(/CTA:\s*(\w+)/);
+    const ctaType = ctaMatch ? ctaMatch[1].trim() : null;
+    const mainResponse = fullText.replace(/CTA:\s*\w+/g, '').trim();
+    typingEl.remove();
+    if (mainResponse) {
+      appendMessage('ai', mainResponse, ctaType);
+      conversationHistory.push({ role: 'user', content: triggerContent });
+      conversationHistory.push({ role: 'assistant', content: mainResponse });
+    }
+  } catch (err) {
+    typingEl.remove();
   }
 }
 
@@ -1084,7 +1129,7 @@ function appendGate() {
     <div class="gate-card">
       <h3>Keep the conversation going</h3>
       <p>You've used your free messages. Create a free account to continue chatting with Mila and get matched with your personal pregnancy guide.</p>
-      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Start your free 7-day trial</button>
+      <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Start your free 14-day trial</button>
     </div>
   `;
   container.appendChild(div);

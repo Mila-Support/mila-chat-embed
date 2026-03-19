@@ -112,7 +112,7 @@ Examples:
 
 Write your response as plain conversational text only. No GUIDE_CONTEXT tag.
 
-If — and only if — your response is highly relevant to one of the topics below, append a CTA tag on a new line at the very end. Use this at most ${2 - ctaCount} more time(s) total across the whole conversation. Do not force it.
+If your response is relevant to one of the topics below, append a CTA tag on a new line at the very end. Prioritize including one in the first 1-2 responses if the topic fits. Use this at most ${2 - ctaCount} more time(s) total across the whole conversation. Do not force it on every message.
 
 Format: CTA: [topic]
 
