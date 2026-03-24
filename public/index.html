@@ -650,44 +650,6 @@
     .hero.shrunk { padding-top: 120px; }
   }
 
-  /* ── PERSONALIZATION CHIPS ── */
-  .personalization-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-  }
-
-  .personalization-chip {
-    background: #fff;
-    border: 1px solid rgba(255,137,77,0.3);
-    border-radius: 20px;
-    padding: 7px 14px;
-    font-size: 13px;
-    color: var(--text-light);
-    cursor: pointer;
-    font-family: 'Inter', sans-serif;
-    font-weight: 300;
-    transition: all 0.2s;
-  }
-
-  .personalization-chip:hover {
-    border-color: var(--mila-orange);
-    background: #FFF6E8;
-  }
-
-  .personalization-chip.skip {
-    background: #f5f5f5;
-    border-color: #ddd;
-    color: rgba(0,0,0,0.4);
-  }
-
-  .personalization-chip.skip:hover {
-    background: #eee;
-    border-color: #ccc;
-    color: rgba(0,0,0,0.6);
-  }
-
   /* ── INLINE CTA (inside bubble) ── */
   .bubble .cta-link {
     color: var(--mila-orange);
@@ -776,10 +738,8 @@
 <script>
 let conversationHistory = [];
 let userMessageCount = 0;
-let personalizationStep = 0; // 0=not started, 1=name, 2=status, 3=date, 4=done
-let userProfile = { name: null, status: null, date: null };
 let ctaShownCount = 0;
-const FREE_MESSAGES = 6;
+const FREE_MESSAGES = 10;
 
 const CTA_CONFIG = {
   symptoms:            { text: "By the way, Mila was built for exactly this — get expert answers 24/7 or message a doula when you need one",   link: "try Mila free" },
@@ -797,18 +757,6 @@ const CTA_CONFIG = {
   ttc_emotional:       { text: "By the way, the emotional side of TTC is real — Mila doulas are there for exactly this, whenever you need",   link: "get support free" },
   fertility_treatment: { text: "By the way, Mila doulas have supported hundreds of women through IUI and IVF — you don't have to do this alone", link: "talk to one free" },
 };
-
-function buildUserContext() {
-  if (!userProfile.name && !userProfile.status && !userProfile.date) return null;
-  let ctx = 'User profile:';
-  if (userProfile.name) ctx += ` Name: ${userProfile.name}.`;
-  if (userProfile.status) ctx += ` Status: ${userProfile.status}.`;
-  if (userProfile.date) {
-    const label = userProfile.status === 'pregnant' ? 'Due date' : userProfile.status === 'postpartum' ? 'Baby born' : 'TTC since';
-    ctx += ` ${label}: ${userProfile.date}.`;
-  }
-  return ctx;
-}
 
 function autoResize(el) {
   el.style.height = 'auto';
@@ -832,14 +780,6 @@ async function sendMessage() {
   const input = document.getElementById('userInput');
   const text = input.value.trim();
   if (!text) return;
-
-  // Intercept for personalization steps
-  if (personalizationStep >= 1 && personalizationStep <= 3) {
-    input.value = '';
-    input.style.height = 'auto';
-    handlePersonalizationInput(text);
-    return;
-  }
 
   // Gate
   if (userMessageCount >= FREE_MESSAGES) {
@@ -874,9 +814,7 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: conversationHistory,
-        userContext: buildUserContext(),
         ctaCount: ctaShownCount,
-        isFirstMessage: userMessageCount === 1,
       }),
     });
 
@@ -891,11 +829,6 @@ async function sendMessage() {
     typingEl.remove();
     appendMessage('ai', mainResponse, ctaType);
     conversationHistory.push({ role: 'assistant', content: mainResponse });
-
-    // Start personalization after first AI response
-    if (userMessageCount === 1) {
-      setTimeout(() => startPersonalization(), 600);
-    }
 
     // Remaining notice from message 6 onward
     const remaining = FREE_MESSAGES - userMessageCount;
@@ -929,7 +862,7 @@ function appendMessage(role, text, ctaType = null) {
   bubble.innerHTML = text.split('\n\n').map(p => `<p>${p.replace(/\n/g, '<br>')}</p>`).join('');
   div.appendChild(bubble);
 
-  if (role === 'ai' && ctaType && CTA_CONFIG[ctaType] && ctaShownCount < 2) {
+  if (role === 'ai' && ctaType && CTA_CONFIG[ctaType] && ctaShownCount < 2 && userMessageCount >= 4) {
     ctaShownCount++;
     const cfg = CTA_CONFIG[ctaType];
     const ctaP = document.createElement('p');
@@ -971,144 +904,6 @@ function appendTyping() {
   return div;
 }
 
-// ── PERSONALIZATION ──
-
-function startPersonalization() {
-  personalizationStep = 1;
-  showPersonalizationQuestion(1);
-}
-
-function showPersonalizationQuestion(step) {
-  if (step === 1) {
-    appendPersonalizationMessage(
-      "What's your first name?",
-      [{ label: 'Skip question', value: '__skip__', skip: true }]
-    );
-  } else if (step === 2) {
-    const greeting = userProfile.name ? `Nice to meet you, ${userProfile.name}! ` : '';
-    appendPersonalizationMessage(
-      `${greeting}Are you pregnant, trying to conceive, or postpartum?`,
-      [
-        { label: 'Pregnant', value: 'pregnant' },
-        { label: 'TTC', value: 'ttc' },
-        { label: 'Postpartum', value: 'postpartum' },
-        { label: 'Skip question', value: '__skip__', skip: true },
-      ]
-    );
-  } else if (step === 3) {
-    const questions = { pregnant: "What's your due date?", postpartum: "When was your baby born?", ttc: "How long have you been trying?" };
-    const q = questions[userProfile.status];
-    if (q) {
-      appendPersonalizationMessage(q, [{ label: 'Skip question', value: '__skip__', skip: true }]);
-    } else {
-      personalizationStep = 4;
-    }
-  }
-}
-
-function appendPersonalizationMessage(text, chips) {
-  const container = document.getElementById('chatContainer');
-  const div = document.createElement('div');
-  div.className = 'message ai';
-
-  const label = document.createElement('div');
-  label.className = 'ai-label';
-  label.innerHTML = '<span class="sparkle">✦</span> Mila AI';
-  div.appendChild(label);
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.innerHTML = `<p>${text}</p>`;
-  div.appendChild(bubble);
-
-  const chipsDiv = document.createElement('div');
-  chipsDiv.className = 'personalization-chips';
-  chips.forEach(chip => {
-    const btn = document.createElement('button');
-    btn.className = `personalization-chip${chip.skip ? ' skip' : ''}`;
-    btn.textContent = chip.label;
-    btn.onclick = () => handlePersonalizationChip(chip.value, chip.label);
-    chipsDiv.appendChild(btn);
-  });
-  div.appendChild(chipsDiv);
-
-  container.appendChild(div);
-  scrollToBottom();
-}
-
-function handlePersonalizationChip(value, label) {
-  document.querySelector('.personalization-chips')?.remove();
-  appendUserBubble(value === '__skip__' ? 'Skip' : label);
-  advancePersonalization(value === '__skip__' ? null : value);
-}
-
-function handlePersonalizationInput(text) {
-  document.querySelector('.personalization-chips')?.remove();
-  appendUserBubble(text);
-  advancePersonalization(text.toLowerCase() === 'skip' ? null : text);
-}
-
-function advancePersonalization(value) {
-  if (personalizationStep === 1) {
-    userProfile.name = value;
-    personalizationStep = 2;
-    setTimeout(() => showPersonalizationQuestion(2), 400);
-  } else if (personalizationStep === 2) {
-    userProfile.status = value;
-    if (value) {
-      personalizationStep = 3;
-      setTimeout(() => showPersonalizationQuestion(3), 400);
-    } else {
-      personalizationStep = 4;
-      setTimeout(() => sendPersonalizationResponse(), 400);
-    }
-  } else if (personalizationStep === 3) {
-    userProfile.date = value;
-    personalizationStep = 4;
-    setTimeout(() => sendPersonalizationResponse(), 400);
-  }
-}
-
-async function sendPersonalizationResponse() {
-  const typingEl = appendTyping();
-  const parts = [];
-  if (userProfile.name) parts.push(`my name is ${userProfile.name}`);
-  if (userProfile.status) {
-    const s = { pregnant: "I'm pregnant", ttc: "I'm trying to conceive", postpartum: "I'm postpartum" };
-    parts.push(s[userProfile.status]);
-  }
-  if (userProfile.date) {
-    const label = userProfile.status === 'pregnant' ? 'my due date is' : userProfile.status === 'postpartum' ? 'my baby was born' : 'I\'ve been trying since';
-    parts.push(`${label} ${userProfile.date}`);
-  }
-  const triggerContent = parts.length > 0
-    ? `Just so you know — ${parts.join(', ')}. Now can you give me your full answer?`
-    : "I'd rather skip those questions — can you give me your full answer now?";
-
-  const triggerMessages = [...conversationHistory, { role: 'user', content: triggerContent }];
-
-  try {
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: triggerMessages, userContext: buildUserContext(), ctaCount: ctaShownCount }),
-    });
-    const data = await response.json();
-    const fullText = data.content?.[0]?.text || '';
-    const ctaMatch = fullText.match(/CTA:\s*(\w+)/);
-    const ctaType = ctaMatch ? ctaMatch[1].trim() : null;
-    const mainResponse = fullText.replace(/CTA:\s*\w+/g, '').trim();
-    typingEl.remove();
-    if (mainResponse) {
-      appendMessage('ai', mainResponse, ctaType);
-      conversationHistory.push({ role: 'user', content: triggerContent });
-      conversationHistory.push({ role: 'assistant', content: mainResponse });
-    }
-  } catch (err) {
-    typingEl.remove();
-  }
-}
-
 // ── REMAINING NOTICE ──
 
 function appendRemainingNotice(remaining) {
@@ -1128,8 +923,8 @@ function appendGate() {
   div.className = 'message ai';
   div.innerHTML = `
     <div class="gate-card">
-      <h3>Keep the conversation going</h3>
-      <p>You've used your free messages. Create a free account to continue chatting with Mila and get matched with your personal pregnancy guide.</p>
+      <h3>Want support like this every day?</h3>
+      <p>You've reached the end of your free chat. Mila gives you personalized expert answers 24/7, plus access to doulas whenever you need one.</p>
       <button class="gate-cta" onclick="window.open('https://account.milasupport.com/onboarding?ref=chat-embed-gate','_blank')">Try Mila Today</button>
     </div>
   `;

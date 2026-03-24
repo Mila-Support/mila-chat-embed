@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages, userContext, ctaCount = 0, isFirstMessage = false } = req.body;
+  const { messages, ctaCount = 0 } = req.body;
 
   if (!messages || !Array.isArray(messages)) {
     return res.status(400).json({ error: 'Missing or invalid messages array' });
@@ -112,21 +112,11 @@ Examples:
 
 Write your response as plain conversational text only. No GUIDE_CONTEXT tag.
 
-If your response is relevant to one of the topics below, append a CTA tag on a new line at the very end. Prioritize including one in the first 1-2 responses if the topic fits. Use this at most ${2 - ctaCount} more time(s) total across the whole conversation. Do not force it on every message.
+If your response is relevant to one of the topics below, append a CTA tag on a new line at the very end. Do not include one in the first 3 responses — only add it after the user has had a chance to experience the conversation. Use this at most ${2 - ctaCount} more time(s) total across the whole conversation. Do not force it on every message.
 
 Format: CTA: [topic]
 
 Topics: symptoms, sleep, nausea, anxiety, overwhelmed, relationship, birth_plan, hospital_bag, feeding, postpartum_recovery, baby_blues, ttc_cycle, ttc_emotional, fertility_treatment`;
-
-  let finalSystemPrompt = systemPrompt;
-
-  if (userContext) {
-    finalSystemPrompt += `\n\n# User Profile\n${userContext}\nUse this naturally — address them by name occasionally, and tailor your responses to their stage.`;
-  }
-
-  if (isFirstMessage) {
-    finalSystemPrompt += `\n\n# First Message Instruction\nThis is the user's very first message. Do NOT give a full answer yet. Acknowledge their question warmly in 1 sentence, then tell them you'll ask them a few quick questions first so you can give them the most helpful guidance for where they're at. Say it in first person — "I'll ask you a few quick questions..." — as if you are personally going to ask them. Keep it to 2 sentences max. Do not ask any questions in this response.`;
-  }
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -138,7 +128,7 @@ Topics: symptoms, sleep, nausea, anxiety, overwhelmed, relationship, birth_plan,
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
-      system: finalSystemPrompt,
+      system: systemPrompt,
       messages,
     }),
   });
